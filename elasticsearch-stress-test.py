@@ -47,6 +47,7 @@ parser = argparse.ArgumentParser()
 # Adds all params
 parser.add_argument("--es_address", nargs='+', help="The address of your cluster (no protocol or port)", required=True)
 parser.add_argument("--indices", type=int, help="The number of indices to write to for each ip", required=True)
+parser.add_argument("--index-prefix", default="esst", help="Prefix to append to the generated index names")
 parser.add_argument("--documents", type=int, help="The number different documents to write for each ip", required=True)
 parser.add_argument("--clients", type=int, help="The number of clients to write from for each ip", required=True)
 parser.add_argument("--seconds", type=int, help="The number of seconds to run for each ip", required=True)
@@ -73,6 +74,7 @@ args = parser.parse_args()
 
 # Set variables from argparse output (for readability)
 NUMBER_OF_INDICES = args.indices
+INDEX_PREFIX = args.index_prefix
 NUMBER_OF_DOCUMENTS = args.documents
 NUMBER_OF_CLIENTS = args.clients
 NUMBER_OF_SECONDS = args.seconds
@@ -262,14 +264,14 @@ def generate_documents():
     return temp_documents
 
 
-def generate_indices(es):
+def generate_indices(es, index_prefix=INDEX_PREFIX):
     # Placeholder
     temp_indices = []
 
     # Iterate over the indices count
     for _ in range(NUMBER_OF_INDICES):
         # Generate the index name
-        temp_index = generate_random_string(16)
+        temp_index = '-'.join([index_prefix, generate_random_string(16)])
 
         # Push it to the list
         temp_indices.append(temp_index)
@@ -278,7 +280,6 @@ def generate_indices(es):
             # And create it in ES with the shard count and replicas
             es.indices.create(index=temp_index, body={"settings": {"number_of_shards": NUMBER_OF_SHARDS,
                                                                    "number_of_replicas": NUMBER_OF_REPLICAS}})
-
         except Exception as e:
             print("Could not create index. Is your cluster ok?")
             print(e)
@@ -342,7 +343,7 @@ def print_stats_worker(STARTED_TIMESTAMP):
 def main():
     clients = []
     all_indices = []
-    auth = None 
+    auth = None
     context = None
 
     # Set the timestamp
@@ -359,7 +360,8 @@ def main():
 
             if CA_FILE:
                 context = create_ssl_context(cafile=CA_FILE)
-         
+                context.check_hostname = False
+
             if AUTH_USERNAME and AUTH_PASSWORD:
                 auth = (AUTH_USERNAME, AUTH_PASSWORD)
 
@@ -422,7 +424,7 @@ def main():
                 print("")
                 print("Ctrl-c received! Sending kill to threads...")
                 shutdown_event.set()
-                
+
                 # set loop flag true to get into loop
                 flag = True
                 while flag:
@@ -435,7 +437,7 @@ def main():
                         # if one single thread is still alive repeat the loop
                         if t.isAlive():
                             flag = True
-                            
+
                 print("Cleaning up created indices.. "),
                 cleanup_indices(es, all_indices)
 
