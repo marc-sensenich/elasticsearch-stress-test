@@ -361,6 +361,10 @@ def main():
             if CA_FILE:
                 context = create_ssl_context(cafile=CA_FILE)
                 context.check_hostname = False
+                if not VERIFY_CERTS:
+                    from ssl import CERT_NONE
+                    context.verify_mode = CERT_NONE
+
 
             if AUTH_USERNAME and AUTH_PASSWORD:
                 auth = (AUTH_USERNAME, AUTH_PASSWORD)
