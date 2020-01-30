@@ -277,11 +277,13 @@ def generate_indices(es, index_prefix=INDEX_PREFIX):
         temp_indices.append(temp_index)
 
         try:
+            print("Creating index {}".format(temp_index))
             # And create it in ES with the shard count and replicas
             es.indices.create(index=temp_index, body={"settings": {"number_of_shards": NUMBER_OF_SHARDS,
                                                                    "number_of_replicas": NUMBER_OF_REPLICAS}})
+            print("Created index {}".format(temp_index))
         except Exception as e:
-            print("Could not create index. Is your cluster ok?")
+            print("Could not create index {}. Is your cluster ok?".format(temp_index))
             print(e)
             sys.exit(1)
 
@@ -293,9 +295,10 @@ def cleanup_indices(es, indices):
     # Iterate over all indices and delete those
     for curr_index in indices:
         try:
+            print("Deleting index {}".format(curr_index))
             # Delete the index
             es.indices.delete(index=curr_index, ignore=[400, 404])
-
+            print("Deleted index {}".format(curr_index))
         except:
             print("Could not delete index: {0}. Continue anyway..".format(curr_index))
 
