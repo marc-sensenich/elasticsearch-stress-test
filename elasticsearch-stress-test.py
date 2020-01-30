@@ -12,7 +12,7 @@ import sys
 import argparse
 
 # Import threading essentials
-from threading import Lock, Thread, Condition, Event
+from threading import Lock, Thread, Condition, Event, enumerate as threading_enumerate
 
 # For randomizing
 import string
@@ -440,7 +440,7 @@ def main():
                     # set loop flag to false. If there is no thread still alive it will stay false
                     flag = False
                     # loop through each running thread and check if it is alive
-                    for t in threading.enumerate():
+                    for t in threading_enumerate():
                         # if one single thread is still alive repeat the loop
                         if t.isAlive():
                             flag = True
