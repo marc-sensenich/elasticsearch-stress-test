@@ -433,7 +433,7 @@ def main():
                 flag = True
                 while flag:
                     #sleep 2 secs that we don't loop to often
-                    sleep(2)
+                    time.sleep(2)
                     # set loop flag to false. If there is no thread still alive it will stay false
                     flag = False
                     # loop through each running thread and check if it is alive
