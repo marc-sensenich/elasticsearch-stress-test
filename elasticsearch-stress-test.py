@@ -280,7 +280,7 @@ def generate_indices(es, index_prefix=INDEX_PREFIX):
             print("Creating index {}".format(temp_index))
             # And create it in ES with the shard count and replicas
             es.indices.create(index=temp_index, body={"settings": {"number_of_shards": NUMBER_OF_SHARDS,
-                                                                   "number_of_replicas": NUMBER_OF_REPLICAS}})
+                                                                   "number_of_replicas": NUMBER_OF_REPLICAS}}, ignore=[400])
             print("Created index {}".format(temp_index))
         except Exception as e:
             print("Could not create index {}. Is your cluster ok?".format(temp_index))
